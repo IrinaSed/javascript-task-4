@@ -23,7 +23,9 @@ function sortOperations(operations) {
  */
 exports.query = function (collection) {
 
-    var copiedСollection = collection.slice();
+    var copiedСollection = collection.map(function (friend) {
+        return Object.assign({}, friend);
+    });
     var queryFunctions = sortOperations([].slice.call(arguments, 1));
     queryFunctions.forEach(function (queryFunction) {
         copiedСollection = queryFunction(copiedСollection);
@@ -119,7 +121,7 @@ exports.limit = function (count) {
     console.info(count);
 
     return function limit(collection) {
-        return collection.slice().slice(0, count);
+        return collection.slice(0, count);
     };
 };
 
