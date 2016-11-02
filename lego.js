@@ -7,7 +7,7 @@
 exports.isStar = true;
 
 function sortOperations(operations) {
-    var orderOperations = ['filterIn', 'or', 'and', 'sortBy', 'select', 'format', 'limit'];
+    var orderOperations = ['filterIn', 'and', 'or', 'sortBy', 'select', 'format', 'limit'];
 
     return operations.sort(function (a, b) {
         return orderOperations.indexOf(a.name) - orderOperations.indexOf(b.name);
