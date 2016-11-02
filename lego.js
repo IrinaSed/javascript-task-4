@@ -9,7 +9,7 @@ exports.isStar = true;
 function sortOperations(operations) {
     var orderOperations = ['filterIn', 'and', 'or', 'sortBy', 'select', 'format', 'limit'];
 
-    return operations.sort(function (a, b) {
+    return operations.slice().sort(function (a, b) {
         return orderOperations.indexOf(a.name) - orderOperations.indexOf(b.name);
     });
 }
@@ -66,7 +66,6 @@ exports.filterIn = function (property, values) {
     return function filterIn(collection) {
         return collection.slice().filter(function (friend) {
             return values.indexOf(friend[property]) !== -1;
-
         });
     };
 };
@@ -115,7 +114,7 @@ exports.limit = function (count) {
     console.info(count);
 
     return function limit(collection) {
-        return collection.slice().slice(0, count);
+        return collection.slice(0, count);
     };
 };
 
