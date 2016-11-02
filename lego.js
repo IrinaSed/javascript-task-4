@@ -42,15 +42,14 @@ exports.select = function () {
     var fields = [].slice.call(arguments);
 
     return function select(collection) {
-        return collection.map(function (friend) {
-            var selectedRecord = {};
-            fields.forEach(function (field) {
+        return collection.slice().map(function (friend) {
+            return fields.reduce(function (selectedRecord, field) {
                 if (field in friend) {
                     selectedRecord[field] = friend[field];
                 }
-            });
 
-            return selectedRecord;
+                return selectedRecord;
+            }, {});
         });
     };
 };
@@ -103,7 +102,7 @@ exports.format = function (property, formatter) {
     console.info(property, formatter);
 
     return function format(collection) {
-        return collection.map(function (friend) {
+        return collection.slice().map(function (friend) {
             if (property in friend) {
                 friend[property] = formatter(friend[property]);
             }
@@ -121,7 +120,7 @@ exports.limit = function (count) {
     console.info(count);
 
     return function limit(collection) {
-        return collection.slice(0, count);
+        return collection.slice().slice(0, count);
     };
 };
 
@@ -134,18 +133,15 @@ if (exports.isStar) {
      */
     exports.or = function () {
         var filterFunctions = [].slice.call(arguments);
-        var orFiltered = [];
 
         return function or(collection) {
-            filterFunctions.forEach(function (filterFunction) {
-                filterFunction(collection).forEach(function (friend) {
-                    if (!(friend in orFiltered)) {
-                        orFiltered.push(friend);
-                    }
+            var orFiltered = collection.slice();
+
+            return orFiltered.filter(function (item) {
+                return filterFunctions.some(function (filterFunction) {
+                    return filterFunction(orFiltered).indexOf(item) >= 0;
                 });
             });
-
-            return orFiltered;
         };
     };
 
