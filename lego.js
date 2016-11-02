@@ -4,10 +4,10 @@
  * Сделано задание на звездочку
  * Реализованы методы or и and
  */
-exports.isStar = false;
+exports.isStar = true;
 
 function sortOperations(operations) {
-    var orderOperations = ['filterIn', 'and', 'or', 'sortBy', 'format', 'select', 'limit'];
+    var orderOperations = ['filterIn', 'and', 'or', 'sortBy', 'select', 'format', 'limit'];
 
     return operations.sort(function (a, b) {
         return orderOperations.indexOf(a.name) - orderOperations.indexOf(b.name);
@@ -65,11 +65,8 @@ exports.filterIn = function (property, values) {
 
     return function filterIn(collection) {
         return collection.slice().filter(function (friend) {
-            if (property in friend) {
-                return values.indexOf(friend[property]) !== -1;
-            }
+            return values.indexOf(friend[property]) !== -1;
 
-            return false;
         });
     };
 };
@@ -103,9 +100,7 @@ exports.format = function (property, formatter) {
 
     return function format(collection) {
         return collection.slice().map(function (friend) {
-            if (property in friend) {
-                friend[property] = formatter(friend[property]);
-            }
+            friend[property] = formatter(friend[property]);
 
             return friend;
         });
