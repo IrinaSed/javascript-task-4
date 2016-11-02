@@ -85,10 +85,10 @@ exports.sortBy = function (property, order) {
     return function sortBy(collection) {
         return collection.slice().sort(function (a, b) {
             if (order === 'asc') {
-                return a[property] - b[property];
+                return a[property] <= b[property] ? -1 : 1;
             }
 
-            return b[property] - a[property];
+            return b[property] <= a[property] ? 1 : -1;
         });
     };
 };
