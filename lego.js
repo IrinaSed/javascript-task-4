@@ -10,7 +10,7 @@ function sortOperations(operations) {
     var orderOperations = ['filterIn', 'and', 'or', 'sortBy', 'select', 'format', 'limit'];
 
     return operations.slice().sort(function (a, b) {
-        return orderOperations.indexOf(a.name) - orderOperations.indexOf(b.name);
+        return orderOperations.indexOf(a.name) < orderOperations.indexOf(b.name) ? -1 : 1;
     });
 }
 
@@ -22,7 +22,6 @@ function sortOperations(operations) {
  * @returns {Array}
  */
 exports.query = function (collection) {
-
     var copiedСollection = collection.map(function (friend) {
         return Object.assign({}, friend);
     });
@@ -84,7 +83,7 @@ exports.sortBy = function (property, order) {
                 return a[property] <= b[property] ? -1 : 1;
             }
 
-            return b[property] <= a[property] ? 1 : -1;
+            return b[property] <= a[property] ? -1 : 1;
         });
     };
 };
