@@ -4,10 +4,10 @@
  * Сделано задание на звездочку
  * Реализованы методы or и and
  */
-exports.isStar = true;
+exports.isStar = false;
 
 function sortOperations(operations) {
-    var orderOperations = ['filterIn', 'and', 'or', 'sortBy', 'select', 'format', 'limit'];
+    var orderOperations = ['filterIn', 'and', 'or', 'sortBy', 'format', 'select', 'limit'];
 
     return operations.sort(function (a, b) {
         return orderOperations.indexOf(a.name) - orderOperations.indexOf(b.name);
