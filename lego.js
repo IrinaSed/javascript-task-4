@@ -10,10 +10,17 @@ function sortOperations(operations) {
     var orderOperations = ['filterIn', 'and', 'or', 'sortBy', 'select', 'format', 'limit'];
 
     return operations.slice().sort(function (a, b) {
-        return orderOperations.indexOf(a.name) < orderOperations.indexOf(b.name) ? -1 : 1;
+        return orderOperations.indexOf(a.name) - orderOperations.indexOf(b.name);
     });
 }
 
+function copyCollection(collection) {
+    var copiedСollection = collection.map(function (friend) {
+        return Object.assign({}, friend);
+    });
+
+    return copiedСollection;
+}
 
 /**
  * Запрос к коллекции
@@ -22,11 +29,10 @@ function sortOperations(operations) {
  * @returns {Array}
  */
 exports.query = function (collection) {
-    var copiedСollection = collection.map(function (friend) {
-        return Object.assign({}, friend);
-    });
-    var queryFunctions = sortOperations([].slice.call(arguments, 1));
-    queryFunctions.forEach(function (queryFunction) {
+    var copiedСollection = copyCollection(collection);
+    var queryFunctions = [].slice.call(arguments, 1);
+    var sortQueryFunctions = sortOperations(queryFunctions);
+    sortQueryFunctions.forEach(function (queryFunction) {
         copiedСollection = queryFunction(copiedСollection);
     });
 
@@ -41,7 +47,7 @@ exports.select = function () {
     var fields = [].slice.call(arguments);
 
     return function select(collection) {
-        return collection.slice().map(function (friend) {
+        return copyCollection(collection).map(function (friend) {
             return fields.reduce(function (selectedRecord, field) {
                 if (field in friend) {
                     selectedRecord[field] = friend[field];
@@ -60,10 +66,8 @@ exports.select = function () {
  */
 
 exports.filterIn = function (property, values) {
-    console.info(property, values);
-
     return function filterIn(collection) {
-        return collection.slice().filter(function (friend) {
+        return collection.filter(function (friend) {
             return values.indexOf(friend[property]) !== -1;
         });
     };
@@ -75,10 +79,11 @@ exports.filterIn = function (property, values) {
  * @param {String} order – Порядок сортировки (asc - по возрастанию; desc – по убыванию)
  */
 exports.sortBy = function (property, order) {
-    console.info(property, order);
-
     return function sortBy(collection) {
-        return collection.slice().sort(function (a, b) {
+        return collection.sort(function (a, b) {
+            if (!(property in a && property in b)) {
+                return false;
+            }
             if (order === 'asc') {
                 return a[property] <= b[property] ? -1 : 1;
             }
@@ -94,10 +99,8 @@ exports.sortBy = function (property, order) {
  * @param {Function} formatter – Функция для форматирования
  */
 exports.format = function (property, formatter) {
-    console.info(property, formatter);
-
     return function format(collection) {
-        return collection.slice().map(function (friend) {
+        return collection.map(function (friend) {
             friend[property] = formatter(friend[property]);
 
             return friend;
@@ -110,9 +113,11 @@ exports.format = function (property, formatter) {
  * @param {Number} count – Максимальное количество элементов
  */
 exports.limit = function (count) {
-    console.info(count);
-
     return function limit(collection) {
+        if (count < 1) {
+            return collection;
+        }
+
         return collection.slice(0, count);
     };
 };
@@ -128,11 +133,11 @@ if (exports.isStar) {
         var filterFunctions = [].slice.call(arguments);
 
         return function or(collection) {
-            var orFiltered = collection.slice();
+            var filteredCollection = collection;
 
-            return orFiltered.filter(function (item) {
+            return filteredCollection.filter(function (friend) {
                 return filterFunctions.some(function (filterFunction) {
-                    return filterFunction(orFiltered).indexOf(item) >= 0;
+                    return filterFunction(filteredCollection).indexOf(friend) >= 0;
                 });
             });
         };
@@ -147,12 +152,12 @@ if (exports.isStar) {
         var filterFunctions = [].slice.call(arguments);
 
         return function and(collection) {
-            var andFiltered = collection.slice();
+            var filteredCollection = collection;
             filterFunctions.forEach(function (filterFunction) {
-                andFiltered = filterFunction(andFiltered);
+                filteredCollection = filterFunction(filteredCollection);
             });
 
-            return andFiltered;
+            return filteredCollection;
         };
     };
 }
