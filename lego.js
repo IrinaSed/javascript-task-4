@@ -16,7 +16,12 @@ function sortOperations(operations) {
 
 function copyCollection(collection) {
     var copiedСollection = collection.map(function (friend) {
-        return Object.assign({}, friend);
+        var copyObject = {};
+        Object.keys(friend).forEach(function (property) {
+            copyObject[property] = friend[property];
+        });
+
+        return copyObject;
     });
 
     return copiedСollection;
@@ -133,11 +138,9 @@ if (exports.isStar) {
         var filterFunctions = [].slice.call(arguments);
 
         return function or(collection) {
-            var filteredCollection = collection;
-
-            return filteredCollection.filter(function (friend) {
+            return collection.filter(function (friend) {
                 return filterFunctions.some(function (filterFunction) {
-                    return filterFunction(filteredCollection).indexOf(friend) >= 0;
+                    return filterFunction([friend]).indexOf(friend) >= 0;
                 });
             });
         };
